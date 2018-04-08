@@ -310,3 +310,71 @@ plt.hist(heights)
 plt.title('Height Distribution of US Presidents')
 plt.xlabel('Height (cm)')
 plt.ylabel('number');
+
+
+# =============================================================================
+# Chapter 5: Computing on Arrays
+# Broadcasting: simply a set of rules for applying ufuncs (+,-,*,etc) on arrays of different sizes
+# =============================================================================
+
+    #Broadcasting: simple example
+import numpy as np    
+    
+a = np.array([0,1,2])
+b = np.array([5,5,5])
+a + b #Elements of the same size are performed on an element-by-element basis 
+
+a + 5 #using a scalar to get the same result
+      #Think of it as duplicating 5 into the array [5,5,5] and adds the results. Duplication actually does not take place but useful mental model for conceptualization
+      
+    #Broadcasting: one-dimension to two-dimension 
+    
+M = np.ones((3,3))
+M
+M + a #here the one-dimensional array is stretched or broadcast across the second dimension in order to match shape of M
+      #Since they both have 3 columns but M has 3 rows and a has 1, a "broadcasts" row 1 to rows 2 & 3
+      
+a = np.arange(3)
+b = np.arange(3)[:,np.newaxis]
+a
+b
+a + b #a needs to create two more rows to match dimensionality of b (duplicating the first), and b needs to create two more columns (duplicating first col)
+
+    #Broadcasting - Rule 1: If the two arrays differ in their number of dimensions, the shape of the one with fewer dimensions is stretched to match other shape
+
+M = np.ones((2,3))
+a = np.arange(3)
+print(M.shape)
+print(a.shape) #This is missing a dimension cause it is a 1-dimensional array so we need to add one a.shape(1,3)
+
+#a.Shape -> (1,3) equals 1 row with 3 columns 
+#M.shape -> (2,3) equals 2 rows with 3 columns, the dimensional structure matches but still disagrees cause M has one more row 
+
+# a.shapre -> (2,3) equals 2 rows with 3 columns by duplicating first row to match number in that dimension of M
+# M.shape -> (2,3) 
+
+M + a #Okay this worked nicely! 
+
+    #Broadcasting example 2: Both arrays need to be broadcast
+    
+a = np.arange(3).reshape((3,1)) 
+b = np.arange(3)
+a.shape #Don't need to add dimensions but need to stretch to 3 columns
+b.shape #need to add an extra dimension and make stretch 1 row into 3
+
+a + b
+
+    #Broadcasting example 3: incompatiple arrays
+    
+M = np.ones((3,2))
+a = np.arange(3)
+
+M + a #Throws an exception
+
+a[:, np.newaxis].shape
+
+
+
+
+
+
