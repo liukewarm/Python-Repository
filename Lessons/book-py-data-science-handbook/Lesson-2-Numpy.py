@@ -264,3 +264,49 @@ np.cumprod(x)#This is the same as using the np function and accumulate
 np.sum(x)
 np.cumsum(x)
 
+big_array = np.random.rand(1000000)
+%timeit sum(big_array) #Using built in functions is much slower
+%timeit np.sum(big_array) 
+
+%timeit np.min(big_array) #Min and max numpy functions, again faster with np
+%timeit min(big_array)
+%timeit np.max(big_array)
+%timeit max(big_array)
+
+big_array.min() #You could also use the method of an array itself
+
+M = np.random.random((3,4))
+M
+M.sum() #aggregation occurs for all columns and rows
+M.min(axis=0) #aggregation occurs for the columns
+M.min(axis=1) #aggregation occurs for the rows
+
+%pwd #Checking current director
+%cd #let's go back to our beginning directory
+cwd = 'pythonscripts/Lessons/book-py-data-science-handbook/PythonDataScienceHandbook-master/notebooks/data/president_heights.csv'    
+
+import pandas as pd
+data = pd.read_csv(cwd)
+heights = np.array(data['height(cm)']) #selecting only heights from the dataset
+print(heights)
+
+    
+print("Mean height:", heights.mean())
+print("Standard Deviation:", heights.std())
+print("Minimum Height:", heights.min())
+print("Maximum height:", heights.max())
+
+print("25th Percentile:",np.percentile(heights,25)) #array doesn't have this method so we call np
+print("Median:", np.median(heights))
+print("75th Percentile:",np.percentile(heights,75))
+
+    #Visualization of the aggregate data
+
+%matplotlib inline
+import matplotlib.pyplot as plt 
+import seaborn; seaborn.set() #set plot style
+
+plt.hist(heights)
+plt.title('Height Distribution of US Presidents')
+plt.xlabel('Height (cm)')
+plt.ylabel('number');
