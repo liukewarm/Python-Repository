@@ -283,10 +283,10 @@ M.min(axis=1) #aggregation occurs for the rows
 
 %pwd #Checking current director
 %cd #let's go back to our beginning directory
-cwd = 'pythonscripts/Lessons/book-py-data-science-handbook/PythonDataScienceHandbook-master/notebooks/data/president_heights.csv'    
+path = 'pythonscripts/Lessons/book-py-data-science-handbook/PythonDataScienceHandbook-master/notebooks/data/president_heights.csv'    
 
 import pandas as pd
-data = pd.read_csv(cwd)
+data = pd.read_csv(path)
 heights = np.array(data['height(cm)']) #selecting only heights from the dataset
 print(heights)
 
@@ -371,9 +371,81 @@ a = np.arange(3)
 
 M + a #Throws an exception
 
-a[:, np.newaxis].shape
+a = a[:, np.newaxis].shape #taking a 1x3 array and making it a 3x1 array to force the broadcasting
+np.logaddexp(M, a) #Using another ufunc to demonstrate that it works 
 
+    #Broadcasting in practice: Centering an array
+    
+X = np.random.random((10,3))
+Xmean = X.mean(0) #calculate the mean for each feature/column, 0 is for axis
 
+X_centered = X - Xmean #taking the dataset (10,3) and subtracting from column means (1,3) to calculate z-scores. In this case, we will see it stretch to a 10x3 with same values each row 
+X_centered.mean(0) #Check to see if we have a near-zero mean
+
+    #Broadcasting in practice: Plotting two-dimension function: 
+    #we defint a function z = f(x,y) and broadcast to compute across the grid
+    
+x = np.linspace(0,5,50)
+y = np.linspace(0,5,50)[:, np.newaxis]
+
+z = np.sin(x) ** 10 + np.cos( 10 + y * x) * np.cos(x)
+
+%matplotlib inline
+import matplotlib.pyplot as plt
+
+plt.imshow(z, origin = "lower", extent = [0,5,0,5],
+           cmap ="viridis")
+plt.colorbar()
+
+# =============================================================================
+# Chapter 6: Comparison, Masks, and Boolean Logic
+# Masking comes up when you want to extract, modify, count, or otherwise manipulate values in an array based on some criterion
+# =============================================================================
+
+    #Example: Counting rainy days. Imagine you have a series of data the represents
+    #the amount of percipitation each day for a year in a given city. For example, 
+    # here we'll load the daily rainfall statistics for the city of Seattle in 2014
+    
+import numpy as np
+import pandas as pd
+
+path = 'PythonDataScienceHandbook-master/notebooks/data/Seattle2014.csv'    
+rainfall = pd.read_csv(path)['PRCP'].values
+inches = rainfall / 254 #1/10mm -> inches
+inches.shape
+    
+%matplotlib inline
+
+import matplotlib.pyplot as plt
+import seaborn; seaborn.set() # set plot styles
+
+plt.hist(inches, 40) #Doesn't tell us much about rainy days though, how do we filter
+
+x = np.array([1,2,3,4,5])
+x < 3 #check each element and return a boolean array
+x > 3
+x <= 3
+x >= 3
+x != 3
+x == 3
+(2 * x) == (x ** 2) #It is also possible to do an element-by-element comparison of two arrays and to include compoound expressions 
+
+rng = np.random.RandomState(0) #Random generation always produces the same result
+x = rng.randint(10, size =(3,4))
+x
+x < 6 #Example from a two-dimensional array
+
+    #Working with Boolean Arrays
+
+np.count_nonzero( x < 6) #count the number of true entires
+np.sum( x < 6) #Same result but different method since false = 0
+np.sum( x < 6, axis = 1) #how many values less than 6 in each row
+
+np.any(x > 8) #true if any value is greater than 8
+np.any(x < 0) #true if any value is less than 0
+np.all(x < 10) #true if each element is less and 10
+np.all(x == 6) #true if all elements equal 6
+np.all(x < 8, axis = 1) #true if all values in each row is less than 8
 
 
 
