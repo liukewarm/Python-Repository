@@ -447,6 +447,26 @@ np.all(x < 10) #true if each element is less and 10
 np.all(x == 6) #true if all elements equal 6
 np.all(x < 8, axis = 1) #true if all values in each row is less than 8
 
+    #Boolean Operators: filtering on two or more conditions
+    
+np.sum((inches > 0.5) & (inches < 1)) #29 days rainfall between 0.5 and 1.0 inches
+np.sum(~( (inches <= 0.5) | (inches >= 1) )) #Tilde is NOT operator
 
+print("Number of days without rain: ", np.sum(inches ==0))
+print("Number days with rain: ", np.sum(inches != 0))
+print("Days with more than 0.5 inches ", np.sum(inches > 0.5))
+print("Rainy days with < 0.1 inches ", np.sum((inches > 0) &
+                                              (inches < 0.2)))
 
+    #Boolean Arrays as Masks
+    
+x < 5 #this is our boolean array 
+x[x < 5] #we mask the boolean array to index and select elements. one-dimension array returned
 
+rainy = (inches > 0) #Consturcting a mask of all rainy days
+summer = (np.arange(365) - 172 < 90) & (np.arange(365) - 172 > 0) #construct a mask of summer days (June 21st is the 172nd day)
+
+print("Median precip on rainy days in 2014 (inches)", np.median(inches[rainy]))
+print("Median precip on summer days in 2014 (inches)", np.median(inches[summer]))
+print("Maximum percip on summer days in 2014 (inches)", np.max(inches[summer]))
+print("Median percip on non-summer rainy days (inches)", np.median(inches[rainy & ~summer]))
