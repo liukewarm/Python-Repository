@@ -470,3 +470,69 @@ print("Median precip on rainy days in 2014 (inches)", np.median(inches[rainy]))
 print("Median precip on summer days in 2014 (inches)", np.median(inches[summer]))
 print("Maximum percip on summer days in 2014 (inches)", np.max(inches[summer]))
 print("Median percip on non-summer rainy days (inches)", np.median(inches[rainy & ~summer]))
+
+    #Fancy Indexing: passing an array of indicies to access multiple array elements at once 
+    
+import numpy as np
+rand = np.random.RandomState(42)
+x = rand.randint(100,size=10)
+x
+    
+[x[3], x[7], x[2]]
+ind = [3,7,4]
+x[ind] #Passing a single list or array of indicies to obtain the same result
+
+ind = np.array([[3,7],
+                [4,5]])
+x[ind] #Shape of the result reflects the shape of the index arrays rather than the shape of the array being indexed
+
+X = np.arange(12).reshape((3,4))
+row = np.array([0,1,2])
+col = np.array([2,1,3])
+X[row,col] #first index refers to the row and second column. it's 1-dim array cause first value in result is X[0,2] second is x[1, 1]. Follows broadcasting rules
+
+X[row[:,np.newaxis], col] #If we combine the column vector and a row vector within the indicies, we get a two-dimensional result
+row[:, np.newaxis] * col #this is how each row value is matched with each column vector
+
+    #Combining Indexing
+    
+X[2, [2,0,1]] #We can combine fancy and simple indices
+x[1:,[2,0,1]] #We can also combine fancy indexing with slicing
+
+mask = np.array([1,0,1,0], dtype = bool)
+X[row[:,np.newaxis], mask] #Combining fancy indexing with masking
+
+
+    #Example: selecting Random Points
+    
+mean =[0,0]
+cov = [[1,2],
+       [2,5]]
+X = rand.multivariate_normal(mean, cov, 100) #One commun use of fancy indexing is the selection of subset of rows from a matrix
+X.shape
+
+%matplotlib inline
+import matplotlib.pyplot as plt
+import seaborn; seaborn.set() #for plotting style
+
+plt.scatter(X[:,0], X[:,1]); #Let's examine our multivariate_normal
+
+indicies = np.random.choice(X.shape[0], 20, replace=False) #get number of rows from X and select 20 random values without replacement
+indicies
+selection = X[indicies]
+selection
+
+plt.scatter(X[:,0], X[:,1], alpha=0.3)
+plt.scatter(selection[:,0], selection[:, 1],
+            facecolors="None", edgecolors='r', s=200); #Plot results with subset of data select by random
+            
+    #Modifying Values with Fancy Indexing 
+
+x = np.arange(10)
+i = np.array([2,1,8,4])
+x[i] = 99
+x # everything in fancy index is now 99
+
+x[i] -= 10 #Fancy assignment which takes the each array element of the index and subtracts 10
+
+
