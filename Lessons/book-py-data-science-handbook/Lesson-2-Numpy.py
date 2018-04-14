@@ -535,4 +535,157 @@ x # everything in fancy index is now 99
 
 x[i] -= 10 #Fancy assignment which takes the each array element of the index and subtracts 10
 
+x = np.zeros(10)
+x[[0,0]] = [4,6]
+x #x[0] is first assigned 4 then followed and replaced by 6
+
+i = [2,3,3,4,4,4]
+x[i] += 1
+x #Really means x[i] + 1, i refers the indices not values. and so when we +1 to the same index value (3,4) it just replaces and reassigns
+
+x = np.zeros(10)
+np.add.at(x,i,1) #This adds the value 1 add each index i, instead of replacing it like the one above
+x
+
+np.random.seed(42)
+x = np.random.randn(100)
+
+bins = np.linspace(-5,5, 20) #-5 to 5 with 20 increments of same value
+counts = np.zeros_like(bins) #Create an empty array of same size as bins
+
+
+i = np.searchsorted(bins, x) #finds the appropriate bin and returns and array with index for insertions
+np.add.at(counts, i, 1) #using the empty array same size as bins, we +1 to the index(i) array
+
+plt.plot(bins, counts, linestyle='steps'); #plotting the histrogram
+np.histogram(x, bins) #this achieve the same thing
+
+# =============================================================================
+# Chapter 7: Sorting Arrays
+# soritng the values in a list or array
+# =============================================================================
+
+import numpy as np
+
+def selection_sort(x):
+    for i in range(len(x)):  #object of sequence of into from 0 to 100-1      
+        swap = i + np.argmin(x[i:]) #storing a swap index if any of the array values after is smaller
+        (x[i], x[swap]) = (x[swap], x[i]) 
+        
+x = np.array([2,1,4,3,5]) #numpy sort
+x.sort() #can also use the array method to sort 
+x
+
+x = np.array([2,1,4,3,5]) #arg sort provides the idicies of the sorted elements
+i = np.argsort(x)
+print(i) #first element gives the index of smallest element, second is index of second smallest element
+x[i] #fancy indexing to get our sorted result, too
+
+rand = np.random.RandomState(42)
+x=rand.randint(0,10,(4,6)) 
+np.sort(x, axis=0) # sorting by column 
+np.sort(x, axis=1) #sorting by row
+
+
+    #Partial Sorts: Partitioning 
+    #Takes an array and number K: the result is a new array with smalled K values to the left and remaining to right in arbitrary order
+    
+x = np.array([7,2,3,1,6,5,4])
+np.partition(x,3) #three smalles values to the left, but not in order
+
+X = np.random.randint(0,10,(4,6))
+np.partition(X, 2, axis = 0) #partition by column, first two smalles value in the array
+np.pariition(X, 2, axis = 1) #partition by row, first 2 smallest values 
+
+    #Example: K-Nearest Neighbours
+    #Using argsort function along with multiole axes to find the nearest neighbour for each point in a set
+
+X = np.random.rand(10,2)
+
+%matplotlib inline
+import matplotlib.pyplot as plt
+import seaborn; seaborn.set() #Plot Styling
+
+plt.scatter(X[:,0], X[:,1], s=100);
+
+dist_sq = np.sum( (X[:,np.newaxis,:] - X[np.newaxis,:,:]) ** 2, axis = 1) #We can compute the matrix of square distances in a single code
+
+
+    #Decompose into steps: K-nearest neighbours
+
+difference = X[:,np.newaxis,:].shape - X[np.newaxis,:,:].shape #for each pair of points, compute differences in their coordinates
+difference.shape # we can see we broadcasting works across rows and columns
+sq_differences = difference **2 #Square distances
+dist_sq = sq_differences.sum(-1) #Sum the coordinate differences to get the squared distance
+
+nearest = np.argsort(dist_sq, axis=1)
+nearest
+
+K = 2
+nearest_partition = np.argpartition(dist_sq, K + 1, axis = 1)
+
+
+
+
+#draw lines from each point to its two nearest neighbours
+plt.scatter(X[:, 0], X[:, 1], s=100)
+
+K = 2
+for i in range(X.shape[0]):
+    for j in nearest_partition[i, :K+1]:
+        # plot a line from X[i]
+        plt.plot(*zip(X[j],X[i]), color='black') #The asterisk just displays the zip object
+        
+# =============================================================================
+# Chapter 8: Structured Arrays
+# Storage of compound and hetergenous data
+# =============================================================================
+
+name = ['Alice', 'Bob', 'Cathy', 'Doug']
+age = [25, 45, 37, 19]
+weight = [55.0, 85.5, 68.0, 61.5]
+
+x = np.zeros(4 ,dtype = int)
+data = np.zeros(4, dtype = {'names': ('name', 'age', 'weight'), #name for the different data types and formats using dictionary method
+                            'formats':('U10', 'i4', 'f8')})
+print(data.dtype)
+    
+    
+
+data['name'] = name #We can fill out empty array with a list of values
+data['age'] = age 
+data['weight'] = weight
+print(data)   
+
+data['name'] #Now we can refer to arrays by their name
+data[0]
+data[-1]['name'] #last array element and the name array element
+
+    #Filtering on names
+    
+data[data['age'] < 30]]['name'] #Get names where age is under 30, returns boolean array, then we fancy index the ones which are true and only grab the 'name' array elements
+    
+    #Creating Structured Arrays
+    
+np.dtype({'names': ('name', 'age', 'weight'),
+          'formats': ((np.str_,10), int, np.float32)}) #Structured Arrays can be made using NumPy dtypes
+    
+np.dtype([('name','S10'),('age', '<i4'), ('weight', 'f8')]) #compound type can also be passed as a list of tuples
+np.dtype('S10,i4,f8') #IF names don't matter you can pass as comma separated stting 
+
+    #More advanced compound types
+    
+tp = np.dtype([('id','i8'),('mat', 'f8', (3,3))])
+X = np.zeros(1, dtype = tp)
+print(X[0])
+print(X['mat'][0]) #Each element in the X array consists of an id and a 3x3 matrix
+
+    #RecordArrays: Fields can be accessed as attributes rather than as dicitonary keys
+    
+data_rec = data.view(np.recarray)
+data_rec.age #acessing the record array using attributes instead rather than dicitonary keys, it's a bit slower though 
+
+%timeit data['age'] #it's a bit slower though when done this way...
+%timeit data_rec['age']
+%timeit data_rec.age
 
