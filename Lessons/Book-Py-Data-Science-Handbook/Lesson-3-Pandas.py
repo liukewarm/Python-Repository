@@ -107,5 +107,61 @@ indA.intersection(indB) #Can also be accessed through index methods
 
     #Data Selection in Series
     
+import pandas as pd
+data = pd.Series([0.25,0.5,0.75,1.0],
+                 index=['a','b','c','d'])
+data
+data['b']
+
+'a' in data #Checks to see if the sting a is in the index array
+data.keys() #like dictionary it provides a list of index in an index object
+list(data.items()) #Like dictionary provides the key-value pairs 
+
+data['e'] = 1.25 #Just like assigning to a dictionary by indexing new key with value, works the same way by assigning to new index
+data
+
+    #Series as a one-dimensional array: Provides some mechanism for selecting like numpy
+    
+data['a':'c'] #Slicing by explicit index. Also the final index 'c' is included
+data[0:2] #Slicing by implicit integer index, final index is excluded
+data[(data > 0.3) & (data < 0.8)] #Masking
+data[['a','e']] #Fancy indexing
+
+    #Indexers: loc, iloc, and ix. Because it can be confusing to use implicit and explicit indexing. For Example, data[1:3] do we include the last index???
+    
+data = pd.Series(['a','b','c'], index=[1,3,5])
+data    
+
+data[1] #explicit style
+data[1:3] #implicit index when slicing
+
+data.loc[1] 
+data.loc[1:3] #This always uses the explicit indexing style
+
+data.iloc[1]
+data.iloc[1:3] #iloc allows indexing and slicing that always references the implicit python-style index
+
+    #Data selection in DataFrame: In many ways like a two-dimensional or structured array
+    #   also like a dictionary of Series structures sharing same index
+    
+    #Dataframe like a dictionary
+    
+area = pd.Series({'California': 423967, 'Texas': 695662,
+                  'New York': 141297, 'Florida': 170312,
+                  'Illinois': 149995}) #Key-Value of index and values for area
+
+pop = pd.Series({'California': 38332521, 'Texas': 26448193,
+                 'New York': 19651127, 'Florida': 19552860,
+                 'Illinois': 12882135}) #Key-Value of index and values for population
+data = pd.DataFrame({'area':area, 'pop':pop}) #dictionary of series created above with keys representing column names
+data
+
+data['area'] #Individual series of the dataframe can be accessed via dictionary styled indexing of column name
+data.area #you can also use attribute-style column access
+
+data.pop is data['pop'] #returns false because pop is a method, sometime dot notation for attribute conflicts so be careful!. Avoid this for column assignment
+
+data['density'] = data['pop'] / data['area'] #dictionary-style syntax to modify the object, or add new column
+
 
 
