@@ -82,3 +82,30 @@ pd.DataFrame(np.random.rand(3,2),
 A = np.zeros(3, dtype=[('A','i8'), ('B', 'f8')]) #three tuples with two elements, one 8byte integer and 8byte float
 pd.DataFrame(A)
 
+# =============================================================================
+# Chapter 3: Pandas Index Object
+# =============================================================================
+
+ind = pd.Index([2,3,5,7,11]) #Creating an index object
+ind
+ind[1] #Acts like an array and we can use standard Python indexing notation to get values
+ind[::2] #grab every other element from the Array
+print(ind.size, ind.shape, ind.ndim, ind.dtype) #Also has many of the same attributes as an array
+
+ind[1] = 0 #They are, however, immutable and cannot be changed
+
+    #Index as ordered set and set theory
+    
+indA = pd.Index([1,3,5,7,9])
+indB = pd.Index([2,3,5,7,11])
+
+indA & indB #Set intersection
+indA | indB #Set Union, is it in indA or indB, the complete set of unique indexes
+indA ^ indB #symmetric difference
+
+indA.intersection(indB) #Can also be accessed through index methods
+
+    #Data Selection in Series
+    
+
+
