@@ -8,7 +8,10 @@ Lesson 3: Data manipulation with Pandas
 import numpy as np
 import pandas as pd
 
-#The Pandas Series Object: is a one-dimensional array of indexed data created from a list or array 
+# =============================================================================
+# Chapter 1: The Pandas Series Object
+# A one-dimensional array of indexed data created from a list or array  
+# =============================================================================
 
 data = pd.Series([0.25,0.5,0.75,1.0])
 data
@@ -38,3 +41,44 @@ population_dict = {'California':3334232,
 population = pd.Series(population_dict) #Passing dictionary into the pandas series
 population
 population['California'] #Dict-style item access
+population['California':'Illinois'] #array-style slicing but with series index
+
+    #Constructing series objects: We've already seen a few ways of constructing Pandas Series from scratch
+    
+pd.Series([1,2,3]) #data can be a list and index defaults to an integer sequence
+pd.Series(5, index=[100, 200, 300]) #data can be a scalar, which is repeated to fill the index
+pd.Series({2:'a', 1:'b', 3:'c'}) #dictionary keys are the default values
+pd.Series({2:'a', 1:'b', 3:'c'}, index=[3,2]) #The Series is populated only with the explicitly identified keys
+
+# =============================================================================
+# Chapter 2: Pandas DataFrame Object
+# Dataframe as sequence of aligned Series objects. They share the same index 
+# =============================================================================
+
+area_dict = {'California': 1234, 'New York': 32434, 'Texas': 9384,
+             'Florida': 75783, 'Illinois': 32134}
+area = pd.Series(area_dict)
+
+states = pd.DataFrame({'Population': population,
+                       'area': area}) #Keys are the column titles and values are the PD series. values are joined by index not position
+states.index #Index object holding the column labels
+states.columns #Index object holding the column labels, Like a two-dimensional array where both rows and columns have index for accessing data 
+
+states['area'] #attribute area returns a series object
+
+    #Constructing DataFrame objects
+    
+pd.DataFrame(population, columns=['population']) #single dataframe can be constructed from series
+
+data = [{'a': i, 'b': 2 * i} for i in range(3)] #List of dicitonary can be made into a DataFrame, this is a fancy one using list comprehension
+pd.DataFrame(data)
+
+pd.DataFrame([{'a':1, 'b':2}, {'b':3, 'c': 4}]) #Nan if some keys/indexes are missing
+
+pd.DataFrame(np.random.rand(3,2),
+             columns=['foo','bar'],
+             index=['a','b','c']) #Given a two-dimensional array of data, we can create a DataFrame with indexes for columns, rows
+
+A = np.zeros(3, dtype=[('A','i8'), ('B', 'f8')]) #three tuples with two elements, one 8byte integer and 8byte float
+pd.DataFrame(A)
+
