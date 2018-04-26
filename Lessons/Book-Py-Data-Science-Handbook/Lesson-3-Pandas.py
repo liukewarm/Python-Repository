@@ -639,7 +639,8 @@ density.tail() #least dense states
 # =============================================================================
 # Chapter 8: Aggregation and Grouping
 # =============================================================================
-
+import numpy as np
+import pandas as pd
 import seaborn as sns
 planets = sns.load_dataset('planets')
 planets.shape
@@ -705,10 +706,108 @@ df.groupby('key').aggregate({'data1':'min',
     #Filtering: drop data based on the group properties
     
 def filter_func(x):
-    return x['data2'].std() >4
+    return x['data2'].std() >4 #Creating a filter function
 
 print(df); print(df.groupby('key').std()); 
-print(df.groupby('key').filter(filter_func))
+print(df.groupby('key').filter(filter_func)) #Keep all groups in which the standard deviation is larger than some critical value, like HAVING clause
 
+    #Transformation: return some transformed version of the full data to recombine
+    
+df.groupby('key').transform(lambda x: x - x.mean()) #Centering the variables
+
+    #apply() method: arbitrary function to the group results. flexible unlike transform which returns the whole set
+    
+def norm_by_data2(x):
+    # x is a DataFrame of group values
+    x['data1'] /= x['data2'].sum()
+    return x #normalizes the first column by the sum of the second
+
+print(df); print(df.groupby('key').apply(norm_by_data2))
+
+    #Split keys: can be any series or list with a length mathing that of a dataframe
+    
+L = [0,1,0,1,2,0]
+print(df); print(df.groupby(L).sum())  #Passing a list, L
+print(df); print(df.groupby(df['key']).sum())
+
+df2 = df.set_index('key')
+mapping = {'A': 'vowel', 'B': 'consonant', 'C': 'consonant'}
+print(df2); print(df2.groupby(mapping).sum()) #Another method is to provide a dictionary that maps index values to group keys
+
+df2.groupby([str.lower, mapping]).mean() #Preceding key choices can be combines to group on a multi-index
+
+    #Grouping example: can put all together and count discovered planets by method and decade
+
+decade = 10 * (planets['year'] // 10)
+decade = decade.astype(str)+'s'
+decade.name = 'decade'
+planets.groupby(['method', decade])['number'].sum().unstack().fillna(0) #count discovered planet by method and decade
+
+# =============================================================================
+# Chapter 9: Pivot Tables
+#   Groups entries into a two-dimensional table that provides a multidimensional summarization of the data
+#   Split-Apply-Combine happens across not a one-dimensional index but two-dimensional grid
+# =============================================================================
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
+titanic = sns.load_dataset('titanic')
+
+titanic.head()
+
+titanic.groupby(['sex', 'class'])['survived'].aggregate('mean').unstack() #Survival by sex and class doing it the hard way
+titanic.pivot_table('survived', index='sex', columns='class')
+
+    #Multilevel Pivot Tables: Grouping can be specified with multiple levels
+    
+age = pd.cut(titanic['age'], [0, 18, 80]) #bin the age using pd.cut 
+titanic.pivot_table('survived', ['sex', age], 'class') #Adding in multiple index levels sex and age (from out pd.cut)
+
+fare = pd.qcut(titanic['fare'], 2) #Quantiles Median
+titanic.pivot_table('survived', ['sex', age], [fare, 'class']) #Adding in multiple columns as well
+
+titanic.pivot_table(index='sex', columns='class',
+                    aggfunc={'survived': sum, 'fare':'mean'}) #Can pass kwargs into the agg function with key being column and value being agg function
+
+titanic.pivot_table('survived', index='sex', columns='class', margins=True) #We get the overall survival rate for class, gender and class & gender
+
+    #Example: Birthrate Data 
+    
+births = pd.read_csv(path + 'births.csv')
+births.head()
+
+births['decade'] = 10 * (births['year'] // 10)
+births.pivot_table('births', index='decade', columns='gender', aggfunc='sum') #Male outnumbers female
+
+%matplotlib inline
+import matplotlib.pyplot as plt
+sns.set() 
+births.pivot_table('births', index='year', columns='gender', aggfunc='sum').plot()
+plt.ylabel('total births per year');
+
+    #Further Data Exploration: Removing outliers via robust sigma-clipping operation
+    
+quartiles = np.percentile(births['births'],[25,50,75])
+mu = quartiles[1]
+sig = 0.74 * (quartiles[2] - quartiles[0]) #.74 comes from interquartile range of gaussian distribution
+
+births = births.query('(births > @mu - 5 * @sig) & births < @mu + 5 * @sig') #Filtering outliers 5 times the IQR from median 
+
+births['day'] = births['day'].astype(int) #Change day to int because it was string cause of null values
+
+births.index = pd.to_datetime(10000 * births.year +
+                              100 * births.month +
+                              births.day, format = '%Y%m%d') #Create a datetime index from year month and day
+births['dayofweek'] = births.index.dayofweek
+
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+births.pivot_table('births', index='dayofweek',
+                   columns='decade', aggfunc='mean').plot()
+plt.gca().set_xticklabels(['Mon','Tues','Wed','Thurs','Fri','Sat','Sun'])
+plt.ylabel('mean births by day')
 
 
